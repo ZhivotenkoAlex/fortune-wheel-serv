@@ -1,17 +1,9 @@
 const getCompanyData = () => {
   const gridData = getGridData();
-  const resultIndex = getRandomIndex(0, gridData.length - 1);
-  const secondResultIndex = getRandomIndex(0, gridData.length - 1);
-  const transitionTime_1 = getRandomIndex(1, 7) + 's';
-  const transitionTime_2 = getRandomIndex(1, 7) + 's';
   const gridSkewY = 90 - 360 / gridData.length;
   const gridRotate = 360 / gridData.length;
   return {
     gridData,
-    resultIndex,
-    secondResultIndex,
-    transitionTime_1,
-    transitionTime_2,
     gridSkewY,
     gridRotate,
   };
@@ -75,7 +67,6 @@ const getAdjustedAngle = (angle, gridRotate, isClockwise) => {
 };
 
 const getFinishIndex = (isClockwise, rotateDeg, gridRotate) => {
-  // The wheel rotates clockwise, so we subtract the rotation angle from 360
   const stoppedAngle =
     isClockwise === true
       ? 360 - (rotateDeg % 360)
@@ -85,4 +76,10 @@ const getFinishIndex = (isClockwise, rotateDeg, gridRotate) => {
   return Math.floor(index);
 };
 
-module.exports = {getCompanyData, getAdjustedAngle, lerp, getFinishIndex};
+module.exports = {
+  getCompanyData,
+  getAdjustedAngle,
+  lerp,
+  getFinishIndex,
+  getRandomIndex,
+};
