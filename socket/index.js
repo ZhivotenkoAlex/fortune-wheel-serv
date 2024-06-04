@@ -1,12 +1,34 @@
-const {getCompanyData, lerp, getFinishIndex} = require('../helpers/helpers');
+const { getCompanyData, lerp, getFinishIndex } = require('../helpers');
+
 require('events').EventEmitter.defaultMaxListeners = 100;
+
 let numConnections = 0;
 let intervalId = null;
 let angleIntervalId = null;
 let negativeAngleIntervalId = null;
-const startTime = Date.now();
+let startTime = Date.now();
 
 function handleConnection(socket) {
+  function startRotation() {
+    startTime = Date.now();
+    angleIntervalId = setInterval(() => {
+      const timeElapsed = Date.now() - startTime;
+      positiveAngle = lerp(0, 360, timeElapsed / 1000);
+      socket.emit('wheelRotation', positiveAngle);
+    }, 20);
+
+    negativeAngleIntervalId = setInterval(() => {
+      const timeElapsed = Date.now() - startTime;
+      negativeAngle = 0 - lerp(0, 360, timeElapsed / 1200);
+      socket.emit('negativeWheelRotation', negativeAngle);
+    }, 20);
+  }
+
+  function pauseRotation() {
+    clearInterval(intervalId);
+    clearInterval(negativeAngleIntervalId);
+  }
+
   numConnections++;
 
   socket.on('ping', (callback) => {
@@ -24,49 +46,35 @@ function handleConnection(socket) {
     intervalId = setInterval(() => {
       gridData = getCompanyData();
       socket.emit('getData', gridData);
-
-      socket.on('ping', (callback) => {
-        callback();
-      });
+      startTime = Date.now();
     }, 5000);
 
-    angleIntervalId = setInterval(() => {
-      const timeElapsed = Date.now() - startTime;
-      const wheelRotationAngle = lerp(0, 360, timeElapsed / 1000);
-      positiveAngle = wheelRotationAngle;
-      socket.emit('wheelRotation', wheelRotationAngle);
-    }, 20);
+    socket.on('updateData', () => {
+      gridData = getCompanyData();
+      socket.emit('getData', gridData);
+    });
 
-    negativeAngleIntervalId = setInterval(() => {
-      const timeElapsed = Date.now() - startTime;
-      const wheelRotationAngle = lerp(0, 360, timeElapsed / 1200);
-      const oppositeRotationAngle = 0 - wheelRotationAngle;
-      negativeAngle = oppositeRotationAngle;
-      socket.emit('negativeWheelRotation', oppositeRotationAngle);
-    }, 20);
+    startRotation();
 
-    socket.on('getFirstFinishIndex', () => {
-      const finishIndex = getFinishIndex(
-        true,
-        positiveAngle,
-        gridData.gridRotate
-      );
+    socket.on('startRotation', startRotation);
+
+    socket.on('pauseRotation', pauseRotation);
+
+    socket.on('getFirstFinishIndex', (data) => {
+      const { rotateDeg } = data;
+      const finishIndex = getFinishIndex(true, rotateDeg, gridData.gridRotate);
       socket.emit('firstFinishIndex', finishIndex);
     });
 
-    socket.on('getSecondFinishIndex', () => {
-      const finishIndex = getFinishIndex(
-        false,
-        negativeAngle,
-        gridData.gridRotate
-      );
+    socket.on('getSecondFinishIndex', (data) => {
+      const { rotateDeg } = data;
+      const finishIndex = getFinishIndex(false, rotateDeg, gridData.gridRotate);
       socket.emit('secondFinishIndex', finishIndex);
     });
   }
 
   socket.once('disconnect', () => {
     numConnections--;
-
     if (numConnections === 0) {
       clearInterval(intervalId);
       clearInterval(angleIntervalId);
@@ -78,4 +86,4 @@ function handleConnection(socket) {
   });
 }
 
-module.exports = {handleConnection};
+module.exports = { handleConnection };
