@@ -10,6 +10,8 @@ WORKDIR /usr/src/app
 # Copying this separately prevents re-running npm install on every code change.
 COPY package*.json ./
 
+RUN apk update && apk add python3
+
 # Install dependencies.
 # If you add a package-lock.json speed your build by switching to 'npm ci'.
 # RUN npm ci --only=production

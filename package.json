@@ -1,13 +1,14 @@
 {
-  "name": "fortune-wheel",
+  "name": "nodejs-cloud-run-hello-world",
   "version": "0.0.1",
-  "description": "Fortune wheel app",
+  "description": "Hello World application for Cloud Run",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
     "lint": "eslint **.js",
     "fix": "eslint --fix *.js",
-    "test": "mocha test/*.test.js --check-leaks --timeout 5000"
+    "test": "mocha test/*.test.js --check-leaks --timeout 5000",
+    "format": "prettier --write \"*.js\""
   },
   "author": "Google LLC",
   "license": "0BSD",
@@ -16,9 +17,11 @@
   },
   "dependencies": {
     "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
     "express": "^4.17.1",
-    "handlebars": "^4.7.4",
+    "firebase-admin": "^12.1.1",
     "http": "^0.0.1-security",
+    "jsonwebtoken": "^9.0.2",
     "socket.io": "^4.7.5"
   },
   "devDependencies": {
