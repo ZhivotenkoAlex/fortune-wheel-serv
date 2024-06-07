@@ -1,5 +1,5 @@
-const { getStoreKey } = require('./store');
-const { storeResults } = require('./firebase');
+const { getStoreKey } = require('../store');
+const { storeResults } = require('../firebase');
 
 const getCompanyData = () => {
   const gridData = getGridData();
