@@ -102,7 +102,17 @@ const getGameResult = (firstAngle, secondAngle, gridData) => {
     secondWheelResult: secondItem.text,
   };
 
-  storeGameResult({ firstWheelFinishIndex, secondWheelFinishIndex, firstAngle, secondAngle, grid_rotate: gridData.gridRotate, isWinner, prizeType });
+  const resultForStore = {
+    firstWheelFinishIndex,
+    secondWheelFinishIndex,
+    firstAngle,
+    secondAngle,
+    isWinner,
+    prizeType,
+    grid_rotate: gridData.gridRotate
+  }
+
+  storeGameResult(resultForStore);
 
   return result;
 };
@@ -113,7 +123,15 @@ const storeGameResult = (result) => {
   const userId = getStoreKey('userId');
   const companyId = getStoreKey('companyId');
   const gameId = getStoreKey('gameId');
-  const { firstWheelFinishIndex, secondWheelFinishIndex, firstAngle, secondAngle, grid_rotate, isWinner, prizeType } = result
+  const {
+    firstWheelFinishIndex,
+    secondWheelFinishIndex,
+    firstAngle,
+    secondAngle,
+    grid_rotate,
+    isWinner,
+    prizeType
+  } = result
 
   const storeResult = {
     companyId: companyId,
@@ -133,4 +151,10 @@ const storeGameResult = (result) => {
   storeResults(storeResult);
 }
 
-module.exports = { getCompanyData, getAdjustedAngle, lerp, getFinishIndex, getGameResult };
+module.exports = {
+  getCompanyData,
+  getAdjustedAngle,
+  lerp,
+  getFinishIndex,
+  getGameResult
+};
