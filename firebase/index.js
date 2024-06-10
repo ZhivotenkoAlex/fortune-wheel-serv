@@ -34,8 +34,7 @@ async function verifyToken(accessToken) {
         const sub = decoded.sub;
         const snapshot = await db.collection('users').doc(sub).get()
         if (!snapshot.exists) {
-            console.log('No such document!');
-            return null
+            throw new Error('No such document!');
         } else {
             // Get the data from the document
             const userData = snapshot.data();
@@ -57,8 +56,7 @@ async function verifyToken(accessToken) {
 async function getGameConfigs(gameID) {
     const snapshot = await db.collection('game_config').doc(gameID).get()
     if (!snapshot.exists) {
-        console.log('No such document!');
-        return null
+        throw new Error('No such document!');
     } else {
         // Get the data from the document
         const gameData = snapshot.data();

@@ -37,8 +37,12 @@ function pauseRotation(intervalId, negativeAngleIntervalId) {
 function handleConnection(socket) {
   numConnections++;
 
-  socket.on("ping", (callback) => {
-    callback();
+  socket.on("ping", async (callback) => {
+    try {
+      callback();
+    } catch (error) {
+      socket.emit('error', 'An error occurred while pinging the server');
+    }
   });
 
   let gridData;
@@ -50,47 +54,78 @@ function handleConnection(socket) {
       socket.emit('responseData', document);
     } catch (error) {
       console.error(error);
-      socket.emit('error', 'An error occurred while fetching data');
+      socket.emit('error', `An error occurred while fetching game data: ${error.message}`);
     }
   });
 
-  socket.on('startRotation', () =>
-    startRotation(socket, gridData?.firstWheelSpeed || 1, gridData?.secondWheelSpeed || 1.5)
+  socket.on('startRotation', async () => {
+    try {
+      startRotation(socket, gridData?.firstWheelSpeed || 1, gridData?.secondWheelSpeed || 1.5)
+    } catch (error) {
+      socket.emit('error', 'An error occurred with the wheel rotation data');
+    }
+  }
   )
 
-  socket.on('pauseRotation', () => pauseRotation(intervalId, negativeAngleIntervalId))
+  socket.on('pauseRotation', async () => {
+    try {
+      pauseRotation(intervalId, negativeAngleIntervalId)
+    } catch (error) {
+      socket.emit('error', 'An error occurred with the wheel rotation pause data');
+    }
+  })
 
-  socket.on('getFirstFinishIndex', (data) => {
-    const { rotateDeg } = data;
-    const finishIndex = getFinishIndex(true, rotateDeg, gridData.gridRotate);
-    socket.emit('firstFinishIndex', finishIndex);
+  socket.on('getFirstFinishIndex', async (data) => {
+    try {
+      const { rotateDeg } = data;
+      const finishIndex = getFinishIndex(true, rotateDeg, gridData.gridRotate);
+      socket.emit('firstFinishIndex', finishIndex);
+    } catch (error) {
+      socket.emit('error', 'An error occurred with data to get results of the first wheel rotation');
+    }
   });
 
-  socket.on('getSecondFinishIndex', (data) => {
-    const { rotateDeg } = data;
-    const finishIndex = getFinishIndex(false, rotateDeg, gridData.gridRotate);
-    socket.emit('secondFinishIndex', finishIndex);
+  socket.on('getSecondFinishIndex', async (data) => {
+    try {
+      const { rotateDeg } = data;
+      const finishIndex = getFinishIndex(false, rotateDeg, gridData.gridRotate);
+      socket.emit('secondFinishIndex', finishIndex);
+    } catch (error) {
+      socket.emit('error', 'An error occurred with data to get results of the second wheel rotation');
+    }
   });
 
-  socket.on('gameResultRequest', (firstAngle, secondAngle) => {
-    const result = getGameResult(firstAngle, secondAngle, gridData);
-    socket.emit('gameResultResponse', result);
+  socket.on('gameResultRequest', async (firstAngle, secondAngle) => {
+    try {
+      const result = getGameResult(firstAngle, secondAngle, gridData);
+      socket.emit('gameResultResponse', result);
+    } catch (error) {
+      socket.emit('error', 'An error occurred with data to get results of the game');
+    }
   });
 
   socket.on('requestTokenVerification', async (accessToken) => {
-    const result = await verifyToken(accessToken);
-    socket.emit('responseTokenVerification', result);
+    try {
+      const result = await verifyToken(accessToken);
+      socket.emit('responseTokenVerification', result);
+    } catch (error) {
+      socket.emit('error', `An error occurred while user verification: ${error.message}`);
+    }
   })
 
-  socket.once('disconnect', () => {
-    numConnections--;
-    if (numConnections === 0) {
-      clearInterval(intervalId);
-      clearInterval(angleIntervalId);
-      clearInterval(negativeAngleIntervalId);
-      angleIntervalId = null;
-      intervalId = null;
-      negativeAngleIntervalId = null;
+  socket.once('disconnect', async () => {
+    try {
+      numConnections--;
+      if (numConnections === 0) {
+        clearInterval(intervalId);
+        clearInterval(angleIntervalId);
+        clearInterval(negativeAngleIntervalId);
+        angleIntervalId = null;
+        intervalId = null;
+        negativeAngleIntervalId = null;
+      }
+    } catch (error) {
+      socket.emit('error', 'An error occurred with disconnecting the user');
     }
   });
 
