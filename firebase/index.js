@@ -1,4 +1,4 @@
-const { setStoreKey, getStoreKey, removeStoreKey, clearStoreKey } = require('../store');
+const { setStoreKey } = require('../store');
 const admin = require('firebase-admin');
 const { getFirestore } = require("firebase-admin/firestore")
 var jwt = require('jsonwebtoken');

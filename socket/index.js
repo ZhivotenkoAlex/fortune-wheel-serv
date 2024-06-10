@@ -1,4 +1,4 @@
-const { getCompanyData, lerp, getFinishIndex, getGameResult } = require('../helpers');
+const { lerp, getFinishIndex, getGameResult } = require('../helpers');
 const { verifyToken, getGameConfigs } = require('../firebase');
 const { setStoreKey } = require('../store');
 require('events').EventEmitter.defaultMaxListeners = 100;
