@@ -1,5 +1,5 @@
 const { lerp, getFinishIndex, getGameResult } = require('../helpers');
-const { verifyToken, getGameConfigs } = require('../firebase');
+const { verifyToken, getGameConfigs, getCompany } = require('../firebase');
 const { setStoreKey } = require('../store');
 require('events').EventEmitter.defaultMaxListeners = 100;
 
@@ -10,6 +10,7 @@ let negativeAngleIntervalId = null;
 let startTime = Date.now();
 let positiveAngle = 0;
 let negativeAngle = 0;
+let companyId = null;
 
 function startRotation(socket, positiveSpeed, negativeSpeed) {
   startTime = Date.now();
@@ -50,8 +51,19 @@ function handleConnection(socket) {
   socket.on('requestData', async (gameId) => {
     try {
       const document = await getGameConfigs(gameId);
+      companyId = document.companyId;
       gridData = document;
       socket.emit('responseData', document);
+    } catch (error) {
+      console.error(error);
+      socket.emit('error', `An error occurred while fetching game data: ${error.message}`);
+    }
+  });
+
+  socket.on('requestCompany', async () => {
+    try {
+      const document = await getCompany(companyId);
+      socket.emit('responseCompany', document);
     } catch (error) {
       console.error(error);
       socket.emit('error', `An error occurred while fetching game data: ${error.message}`);

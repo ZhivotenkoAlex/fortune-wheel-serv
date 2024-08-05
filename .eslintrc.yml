@@ -2,7 +2,8 @@
 extends:
   - 'eslint:recommended'
   - 'plugin:node/recommended'
-  - prettier
+  - 'prettier'
+  - 'plugin:prettier/recommended'
 plugins:
   - node
   - prettier
@@ -13,3 +14,4 @@ rules:
   no-warning-comments: warn
   no-var: error
   prefer-const: error
+  object-curly-spacing: off
