@@ -1,4 +1,4 @@
-let store = {
+const store = {
     userId: null,
     gameId: null,
     companyId: null,
@@ -22,4 +22,10 @@ function clearStoreKey(key) {
     store[key] = null;
 }
 
-module.exports = { store, setStoreKey, getStoreKey, removeStoreKey, clearStoreKey };
+module.exports = {
+    store,
+    setStoreKey,
+    getStoreKey,
+    removeStoreKey,
+    clearStoreKey,
+};

@@ -88,4 +88,47 @@ async function storeResults(result) {
     }
 }
 
-module.exports = { db, verifyToken, getGameConfigs, storeResults, getCompany };
+async function updateFan(userId, companyId, points) {
+    try {
+        let query = await db
+            .collection('fans')
+
+        if (userId) {
+            query = query.where('user_id', '==', userId);
+        }
+        if (companyId) {
+            query = query.where('company_id', '==', companyId);
+        }
+
+        const fanSnapshot = await query.get();
+        const fan = fanSnapshot.docs[0].data();
+        const currentPoints = fan.money;
+        const updatedPoints = currentPoints + Number(points);
+        fanSnapshot.docs[0].ref.update({ money: updatedPoints });
+    } catch (error) {
+        console.log('Error getting document:', error);
+    }
+}
+
+async function getGameConfig(userId, companyId) {
+    try {
+        let query = await db
+            .collection('game_config')
+
+        if (userId) {
+            query = query.where('userId', '==', userId);
+        }
+        if (companyId) {
+            query = query.where('companyId', '==', companyId);
+        }
+
+        const configSnapshot = await query.get();
+        const gameConfig = configSnapshot.docs[0].data();
+        return gameConfig;
+
+    } catch (error) {
+        console.log('Error getting document:', error);
+    }
+}
+
+module.exports = { db, verifyToken, getGameConfigs, storeResults, getCompany, updateFan, getGameConfig };

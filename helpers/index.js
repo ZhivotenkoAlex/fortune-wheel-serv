@@ -1,5 +1,5 @@
 const { getStoreKey } = require('../store');
-const { storeResults } = require('../firebase');
+const { storeResults, updateFan, getGameConfig } = require('../firebase');
 
 const getCompanyData = () => {
   const gridData = getGridData();
@@ -80,18 +80,31 @@ const getFinishIndex = (isClockwise, rotateDeg, gridRotate) => {
 };
 
 const getGameResult = (firstAngle, secondAngle, gridData) => {
-  const firstWheelFinishIndex = getFinishIndex(true, firstAngle, gridData.gridRotate);
-  const secondWheelFinishIndex = getFinishIndex(false, secondAngle, gridData.gridRotate);
+  const firstWheelFinishIndex = getFinishIndex(
+    true,
+    firstAngle,
+    gridData.gridRotate
+  );
+  const secondWheelFinishIndex = getFinishIndex(
+    false,
+    secondAngle,
+    gridData.gridRotate
+  );
   const isIndexesMatch = firstWheelFinishIndex === secondWheelFinishIndex;
-  const firstItem = gridData.items[firstWheelFinishIndex]
-  const secondItem = gridData.items[secondWheelFinishIndex]
+  const firstItem = gridData.items[firstWheelFinishIndex];
+  const secondItem = gridData.items[secondWheelFinishIndex];
   const isColorsMatch = firstItem.bgColor === secondItem.bgColor;
   const isWinner = isIndexesMatch || isColorsMatch;
+
+  if (isWinner) {
+    updatePoints();
+  }
+
   let prizeType = null;
   if (isIndexesMatch) {
-    prizeType = 'A'
+    prizeType = 'A';
   } else if (isColorsMatch) {
-    prizeType = 'B'
+    prizeType = 'B';
   }
   const resultItem = isWinner ? firstItem : null;
   const result = {
@@ -109,8 +122,8 @@ const getGameResult = (firstAngle, secondAngle, gridData) => {
     secondAngle,
     isWinner,
     prizeType,
-    grid_rotate: gridData.gridRotate
-  }
+    grid_rotate: gridData.gridRotate,
+  };
 
   storeGameResult(resultForStore);
 
@@ -130,8 +143,8 @@ const storeGameResult = (result) => {
     secondAngle,
     grid_rotate,
     isWinner,
-    prizeType
-  } = result
+    prizeType,
+  } = result;
 
   const storeResult = {
     companyId: companyId,
@@ -146,9 +159,19 @@ const storeGameResult = (result) => {
     prize_type: prizeType,
     startedAt: startedAt,
     userId: userId,
-  }
+  };
 
   storeResults(storeResult);
+};
+
+const updatePoints = () => {
+  const userId = getStoreKey('userId');
+  const companyId = getStoreKey('companyId');
+
+  getGameConfig(userId, companyId).then((config) => {
+    updateFan(userId, companyId, config.win_points)
+  })
+
 }
 
 module.exports = {
@@ -156,5 +179,6 @@ module.exports = {
   getAdjustedAngle,
   lerp,
   getFinishIndex,
-  getGameResult
+  getGameResult,
+  updatePoints
 };

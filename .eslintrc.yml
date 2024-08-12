@@ -8,10 +8,15 @@ plugins:
   - node
   - prettier
 rules:
-  prettier/prettier: error
-  block-scoped-var: error
-  eqeqeq: error
-  no-warning-comments: warn
-  no-var: error
-  prefer-const: error
-  object-curly-spacing: off
+  possibleErrors:
+    eqeqeq: error
+  bestPractices:
+    block-scoped-var: error
+    no-warning-comments: warn
+  variables:
+    no-var: error
+    prefer-const: error
+  stylisticIssues:
+    object-curly-spacing: off
+  plugins:
+    prettier/prettier: error
