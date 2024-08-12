@@ -50,10 +50,11 @@ function handleConnection(socket) {
 
   socket.on('requestData', async (gameId) => {
     try {
-      const document = await getGameConfigs(gameId);
-      companyId = document.companyId;
-      gridData = document;
-      socket.emit('responseData', document);
+      await getGameConfigs(gameId).then((document) => {
+        companyId = document.companyId;
+        gridData = document;
+        socket.emit('responseData', document);
+      });
     } catch (error) {
       console.error(error);
       socket.emit('error', `An error occurred while fetching game data: ${error.message}`);
@@ -62,8 +63,11 @@ function handleConnection(socket) {
 
   socket.on('requestCompany', async () => {
     try {
-      const document = await getCompany(companyId);
-      socket.emit('responseCompany', document);
+      if (companyId) {
+        const document = await getCompany(companyId);
+        socket.emit('responseCompany', document);
+        return;
+      }
     } catch (error) {
       console.error(error);
       socket.emit('error', `An error occurred while fetching game data: ${error.message}`);
