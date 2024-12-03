@@ -83,6 +83,7 @@ async function getCompany(companyId) {
 async function storeResults(result) {
     try {
         await db.collection('game_history').add(result);
+        await updateInfopage(result.gameId, result.userId, result.companyId);
     } catch (error) {
         console.log('Error getting document:', error);
     }
@@ -105,6 +106,22 @@ async function updateFan(userId, companyId, points) {
         const currentPoints = fan.money;
         const updatedPoints = currentPoints + Number(points);
         fanSnapshot.docs[0].ref.update({ money: updatedPoints });
+    } catch (error) {
+        console.log('Error getting document:', error);
+    }
+}
+
+async function updateInfopage(gameId, user_id, companyId) {
+    try {
+        const infopageQuery = db
+            .collection("infopage")
+            .where("foreign_id", "==", gameId)
+            .where("user_id", "==", user_id)
+            .where("company_id", "==", companyId)
+            .where("finished", "==", 0).get();
+
+        const infopageSnapshot = (await infopageQuery).docs[0];
+        await infopageSnapshot.ref.update({ finished: 1 })
     } catch (error) {
         console.log('Error getting document:', error);
     }
