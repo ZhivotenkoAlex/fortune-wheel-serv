@@ -8,7 +8,8 @@
     "lint": "eslint **.js",
     "fix": "eslint --fix *.js",
     "test": "mocha test/*.test.js --check-leaks --timeout 5000",
-    "format": "prettier --write \"*.js\""
+    "format": "prettier --write \"*.js\"",
+    "deploy": "gcloud run deploy wheel-api --image gcr.io/development-417611/wheel-api --region=europe-central2"
   },
   "author": "Google LLC",
   "license": "0BSD",
