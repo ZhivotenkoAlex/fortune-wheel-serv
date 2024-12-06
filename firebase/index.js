@@ -102,6 +102,9 @@ async function updateFan(userId, companyId, points) {
         }
 
         const fanSnapshot = await query.get();
+        if (fanSnapshot.empty) {
+            throw new Error('No such document!');
+        }
         const fan = fanSnapshot.docs[0].data();
         const currentPoints = fan.money;
         const updatedPoints = currentPoints + Number(points);
@@ -121,7 +124,16 @@ async function updateInfopage(gameId, user_id, companyId) {
             .where("finished", "==", 0).get();
 
         const infopageSnapshot = (await infopageQuery).docs[0];
-        await infopageSnapshot.ref.update({ finished: 1 })
+
+        const demoGameId = '1OfYYkkvnWsn2D748qrx';
+        if (!infopageSnapshot?.exists || gameId === demoGameId) {
+            if (!infopageSnapshot.exists) {
+                throw new Error('No such infopage or it is marked as finished');
+            }
+            return
+        } else {
+            await infopageSnapshot.ref.update({ finished: 1 })
+        }
     } catch (error) {
         console.log('Error getting document:', error);
     }
