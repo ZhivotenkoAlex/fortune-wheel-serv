@@ -96,8 +96,10 @@ const getGameResult = (firstAngle, secondAngle, gridData) => {
   const isColorsMatch = firstItem.bgColor === secondItem.bgColor;
   const isWinner = isIndexesMatch || isColorsMatch;
 
-  if (isWinner) {
-    updatePoints();
+  if (isIndexesMatch) {
+    updatePoints('0');
+  } else if (isColorsMatch) {
+    updatePoints('1');
   }
 
   let prizeType = null;
@@ -164,13 +166,19 @@ const storeGameResult = (result) => {
   storeResults(storeResult);
 };
 
-const updatePoints = () => {
+const updatePoints = (type) => {
   const userId = getStoreKey('userId');
   const companyId = getStoreKey('companyId');
 
   getGameConfig(userId, companyId).then((config) => {
-    updateFan(userId, companyId, config.win_points)
+    const mainPoints = config.win_points ?? 0;
+    const secondaryPoints = config.win_points_2 ?? config.win_points ?? 0;
+
+    const points = type === '0' ? mainPoints : secondaryPoints;
+    updateFan(userId, companyId, points);
   })
+
+
 
 }
 
